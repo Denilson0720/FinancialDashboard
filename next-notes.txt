@@ -37,5 +37,19 @@ Through the use of the link component the users experience feels similar to that
 - when a <Link/> component comes within the browsers viewport next js prefetches the code for that route and by the time the user clicks it, the transition happens near instant...
 ...making it seem just like a react single page application.
 
+HOW TO FETCH DATA
+APIs
+You can use api endpoints through route handlers in nextjs, which run on the server
+this helps avoid fetching data directly from the client as we are not exposing our api/databse keys to the clients browser which can lead to a lot of negatives.
+
+RSC REACT SERVER COMPONENTS
+-supports asynchronous javascript, you dont have to use hooks and states
+-runs in the server, 
+        -avoid sending critical key information to the browser
+        -avoid sending high computational fetches to the client and keep in server and only send results to client
+-since server components run on the server you can query a databse directly meaning you dont need an api layer.
+
+ORM vs SQL
+both are great at doing CRUD operations to a database however ORMs write SQL under the hood.
 
 

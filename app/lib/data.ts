@@ -1,4 +1,6 @@
 import { sql } from '@vercel/postgres';
+// all data queries are here in this server component 'data.ts'
+// because data.ts is a server component we can directly query from the databse without an api layer
 import {
   CustomerField,
   CustomersTableType,
@@ -27,7 +29,7 @@ export async function fetchRevenue() {
     throw new Error('Failed to fetch revenue data.');
   }
 }
-
+// querys the last 5 invoices
 export async function fetchLatestInvoices() {
   try {
     const data = await sql<LatestInvoiceRaw>`
