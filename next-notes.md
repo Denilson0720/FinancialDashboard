@@ -1,4 +1,4 @@
-# NEXT JS NOTES
+# NEXT JS NOTES 📝
 
 ### BENEFITS OF OPTIMIZING FONTS
 In normal web dev there is a thing called <a>cumulative layout shift</a>..  what is this?
@@ -65,8 +65,28 @@ _user data --> get bank account details for 'user' --> get debt data from 'bank 
 
 Where each of the request depend on the data returned by the previous request.
 
+### PARALLEL DATA FETCHING
+In some cases we dont want to use patterns thatll produce request waterfalls as this can be less efficient especially if no data relies on another request.
+An alternative would be parallel data fetching, in JavaScript this is dnoe through the _Promise.all()_ or _Promise.allSettled()_ functions which can call all prmises at the same time(in parallel).
 
+        const data = await Promise.all([
+                invoiceCountPromise,
+                customerCountPromise,
+                invoiceStatusPromise,
+        ]);
 
+### NOTE: ISSUES WITH SUPABASE
+Supabase does not yet seem to support the sql shorthand as:
 
+        import {sql} from '@vercel/postgres';
+        const data = await sql<Revenue>`SELECT * FROM revenue`;
+In order to by pass this we can either 
+- switch and revert to another database solution offered in vercel (neon)
+- make a db connection first and then proceed to query
 
+In order to make a db connection first we do:
 
+        import { db } from '@vercel/postgres';
+        const client = await db.connect(); 
+        const data = await client.sql<Revenue>`SELECT * FROM revenue`;
+💡Solution thanks to lovely guy on <a href='https://screen.studio/share/dg7ZYizd'>reddit</a>.
