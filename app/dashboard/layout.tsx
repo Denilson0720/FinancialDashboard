@@ -1,5 +1,8 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
- 
+
+// turns on partial prerendering in this layout through use of Suspense in children components
+// export const experimental_ppr = true;
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
