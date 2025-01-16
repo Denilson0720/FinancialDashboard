@@ -90,3 +90,78 @@ In order to make a db connection first we do:
         const client = await db.connect(); 
         const data = await client.sql<Revenue>`SELECT * FROM revenue`;
 💡Solution thanks to lovely guy on <a href='https://screen.studio/share/dg7ZYizd'>reddit</a>.
+
+### STATIC RENDERING
+With static rendering, data fetching and rendering happens on the server at build time (when you deploy) or when revalidating data.
+
+When a user visits your application the cached results are served from the CDN(Content Delivery Network).
+
+#### 💡What are cached results?
+Caching done by the CDN works by serving as a intermediary between the user and the server where instead of having the user request for data located all the way in ther server(which may be located far, adding to request fetch time), the user is served prebuilt and prefetched data from the CDN for faster and more efficient load/fetch times.
+However given that some data is bound to change the cache which can be stored in different geographical locations; clear themselves and request new updated data from the server every so often(whenever theyre scheduled to).
+
+__caches becomes even more useful when the user wants to go into other nested routes or comes back at a later date to visit the same site as they are returned cached results in quick time__
+
+__The cache/CDN has all prefetched data for your application allowing for quick near instant accesibility time of routes__
+
+        /customers
+        /customers/id
+__\*if for some reason it does not have the data needed to build the /customer/id route it will go back and fetch for it from the server and keep it for future requests*__
+
+
+In this aspect caching works well in _static rendering_ of blogs, personal portfolios, marketing pages because these applications dont have data updating as often.
+
+### DYNAMIC RENDERING
+With dynamic rendering, content is rendered on the server for each user at request time (when the user visits the page). There are a couple of benefits of dynamic rendering:
+
+- Real-Time Data - Dynamic rendering allows your application to display real-time or frequently updated data. This is ideal for applications where data changes often.
+- User-Specific Content - It's easier to serve personalized content, such as dashboards or user profiles, and update the data based on user interaction.
+- Request Time Information - Dynamic rendering allows you to access information that can only be known at request time, such as cookies or the URL search parameters.
+
+### Streaming Data
+Streaming is a data transfer technique that can be used as a solution to _slow data request_ from blocking the whole page being loaded and usable.
+
+Streaming allows an application to be broken down into smaller _chunks_ (in react these cna be thought of as the components themselves) and as chunk data is fetched they will be loaded.
+
+Streaming allows for the application to be viewed even if all components/chunks are not yet available or interactable.
+
+__Streaming helps reduce the overall load time of an application__
+
+![alt text](image-1.png)
+
+"By streaming, you can prevent slow data requests from blocking your whole page. This allows the user to see and interact with parts of the page without waiting for all the data to load before any UI can be shown to the user."
+
+![alt text](image-2.png)
+
+Implementation of Streaming in NextJS:
+- loading.tsx file, for entire pages.
+- \<Suspense> component,going a more 'granular' approach with specific components.
+
+#### loading.tsx
+loading.tsx is a builtin NextJS file that serves as the fallback component before being replaced by dynamic data after fetching is complete.
+
+Since static components can be shown in conjunction with loading skeletons(Streaming), the user does not have to wait till the loading skeletons from loading.tsx is loaded to be able to interact with the static components.
+
+. ex: user can use navbar(static) to navigate away before dashboard(dynamic) is finished loading, this is called __interuptable navigation__.
+
+### Route Groups
+Route groups can be used to seperate files into logical groups.  If we only want skeletons/loading components to apply to specific page we can can nest these files in a folder '(overview)'
+
+![alt text](image-3.png)
+
+_Our loading.tsx will only apply to page.tsx in this instance_
+
+_( ) does not affect the URL path so in this instance the url is still /dashboard_
+
+### Component Grouping
+Sometimes certain components may make a popping pattern when data fetching is done and it is time to render which can offput the user. (ex: card components in an eccomerce store displaing multiple products in the same format).
+
+__To avoid this__ we can group components by surrounding them in a wrapper component, and have the wrapper component be surrounded by a __Suspense__ component, where the user will see a skeleton until the wrapper containing all components is ready to render.
+
+### Deciding when to use \<Suspense/> boundaries can improve user experience
+Where you place your Suspense boundaries will depend on a few things:
+- How you want the user to experience the page as it streams.
+- What content you want to prioritize.
+- If the components rely on data fetching. By moving data fetching down from the parent component to the component itself you are able to use Suspense and provide a more granular rendering pattern and further prevent UI blockage.
+
+"Where you place your suspense boundaries will vary depending on your application. In general, it's good practice to move your data fetches down to the components that need it, and then wrap those components in Suspense. But there is nothing wrong with streaming the sections or the whole page if that's what your application needs."
