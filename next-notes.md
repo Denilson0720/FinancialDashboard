@@ -165,3 +165,21 @@ Where you place your Suspense boundaries will depend on a few things:
 - If the components rely on data fetching. By moving data fetching down from the parent component to the component itself you are able to use Suspense and provide a more granular rendering pattern and further prevent UI blockage.
 
 "Where you place your suspense boundaries will vary depending on your application. In general, it's good practice to move your data fetches down to the components that need it, and then wrap those components in Suspense. But there is nothing wrong with streaming the sections or the whole page if that's what your application needs."
+
+### Search and Pagination
+### Mangaging Search State with URLs
+- Bookmarkable and Shareable URLs: Since the search parameters are in the URL, users can bookmark the current state of the application, including their search queries and filters, for future reference or sharing.  
+_more info_: Since React has limitations in search managing, users cannot directly share a webpages specific settings incuding filters, querys through URLs since react doest not manage search using URL by default(you would have to use a combination of hooks useQueryParamsState).
+- Server-Side Rendering and Initial Load: URL parameters can be directly consumed on the server to render the initial state, making it easier to handle server rendering.
+- Analytics and Tracking: Having search queries and filters directly in the URL makes it easier to track user behavior without requiring additional client-side logic.
+- NextJS allows URL update without full page reload, thanks to client side navigation capabilities.
+
+_Next JS facilitates the capabilities of sharing or bookmarking specific settings in a webpage_
+
+#### How do we Mangage State with URLS:
+- Capture the user's input. Using an input field
+- Update the URL with the search params.
+- Keep the URL in sync with the input field.
+- Update the table to reflect the search query.
+
+_visit /app/ui/search.tsx for implementation_
