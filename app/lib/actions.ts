@@ -4,6 +4,7 @@
 // import type validation library
 import {z} from 'zod';
 // import { sql } from '@vercel/postgres';
+import { db } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -13,9 +14,12 @@ const FormSchema = z.object({
     amount: z.coerce.number(),
     status: z.enum(['pending', 'paid']),
     date: z.string(),
-  });
+});
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
+
+// create db connection
+const client  = await db.connect();
 
 export async function createInvoice(formData: FormData) {
     // const rawFormData = {
@@ -33,19 +37,24 @@ export async function createInvoice(formData: FormData) {
     //   console.log(typeof rawFormData.amount);
     // insert new data into database
     // await sql`
-    // INSERT INTO invoices (customer_id, amount, status, date)
-    // VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    // `;
-      console.log('customer id: ', customerId)
-      console.log('amount in cents: ', amountInCents)
-      console.log('status: ',status)
-      console.log('date: ',date)
+    await client.sql`
+    INSERT INTO invoices (customer_id, amount, status, date)
+    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
+
+
+    //   console.log('customer id: ', customerId)
+    //   console.log('amount in cents: ', amountInCents)
+    //   console.log('status: ',status)
+    //   console.log('date: ',date)
+
+
     //clear cache and request for new data as we have updated the database
     //simpler terms: update UI
-    // revalidatePath('/dashboard/invoices');
+    revalidatePath('/dashboard/invoices');
 
     // redirect back to dashboard/invoices as we are in dashboard/invoices/create
-    redirect('/dashboard')
+    redirect('/dashboard/invoices')
 
 
 }
