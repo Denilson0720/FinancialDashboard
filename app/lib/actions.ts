@@ -41,14 +41,6 @@ export async function createInvoice(formData: FormData) {
     INSERT INTO invoices (customer_id, amount, status, date)
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
     `;
-
-
-    //   console.log('customer id: ', customerId)
-    //   console.log('amount in cents: ', amountInCents)
-    //   console.log('status: ',status)
-    //   console.log('date: ',date)
-
-
     //clear cache and request for new data as we have updated the database
     //simpler terms: update UI
     revalidatePath('/dashboard/invoices');
