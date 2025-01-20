@@ -183,3 +183,33 @@ _Next JS facilitates the capabilities of sharing or bookmarking specific setting
 - Update the table to reflect the search query.
 
 _visit /app/ui/search.tsx for implementation_
+
+### Debouncing
+Debouncing is a programming practice that puts limits on the rate on which a function can fire.
+
+If we have a Search box which updates some components based off the query inputted by the user on every keystroke, this action can become very demanding as the application grows and the number of users grows alongside.  More users sending hundred-thousands of requests to the database at every single keystoke will become inneficient and costly.
+
+To solve this Debouncing applies limits on how oftern the search function executes queries to the database.
+
+#### Using <span style="color:pink">use-debounce</span> package
+        import { useDebouncedCallback } from 'use-debounce';
+ 
+        const handleSearch = useDebouncedCallback((term) => {
+        console.log(`Searching... ${term}`);
+        
+        const params = new URLSearchParams(searchParams);
+        if (term) {
+        params.set('query', term);
+        } else {
+        params.delete('query');
+        }
+        replace(`${pathname}?${params.toString()}`);
+        }, 300);
+Where the handleSearch is executed 300ms after the user has stopped typing.
+
+### NextJS Server Actions
+Server actions are asynchornous functions that handle server-side operations such as mutating data or logging a user in/out.
+
+When you invoke a <span style="color:pink">server action</span> inside a server component you facilitate <span style="color:pink">progressive enhancement</span> which allows forms to function even if a users internet is slow or javascript is disabled on thier browser.  This ensures that users with slow internet can still interact with the application.
+
+"Additionally, Next.js integrates Server Actions with its caching mechanisms. When a form is submitted through a Server Action, you can mutate data on the server and revalidate the associated cache using APIs like revalidatePath and revalidateTag. This ensures that any stale data is updated, providing users with the most current information <span style="color:pink">without requiring a full page reload.</span>"  This ensures any changes made through form submission are seen in the UI.

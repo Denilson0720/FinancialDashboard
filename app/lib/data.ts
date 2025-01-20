@@ -62,7 +62,7 @@ export async function fetchCardData() {
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
     await new Promise((resolve)=>setTimeout(resolve,1500));
-    
+
     const invoiceCountPromise = client.sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = client.sql`SELECT COUNT(*) FROM customers`;
     const invoiceStatusPromise = client.sql`SELECT
@@ -93,7 +93,7 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 5;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
@@ -141,7 +141,8 @@ export async function fetchInvoicesPages(query: string) {
       invoices.date::text ILIKE ${`%${query}%`} OR
       invoices.status ILIKE ${`%${query}%`}
   `;
-
+    // we have all results
+    // now figure out how many pages by dividing results/items-per-page
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
