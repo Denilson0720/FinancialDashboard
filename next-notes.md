@@ -1,6 +1,6 @@
 # NEXT JS NOTES 📝
 
-💡Note:For this specific project tutorial, if user is using Supabase as the Database for Vercel Postgres the user will have to first set up a database connection to use the sql shorthand method provided by the '@vercel/postgres' library.  This is because the SQL shorthand method defaults to using SQL over HTTP which is not fully supported by supabase just yet. '@vercel/postgres' has also now moved onto using Neon, see [this](/issues-with-supabase) for application.
+💡Note:For this specific project tutorial, if user is using Supabase as the Database for Vercel Postgres the user will have to first set up a database connection to use the sql shorthand method provided by the '@vercel/postgres' library.  This is because the SQL shorthand method defaults to using SQL over HTTP which is not fully supported by supabase just yet. '@vercel/postgres' has also now moved onto using Neon, see [this](#note-issues-with-supabase) for application.
         
 ### BENEFITS OF OPTIMIZING FONTS
 In normal web dev there is a thing called <a>cumulative layout shift</a>..  what is this?
