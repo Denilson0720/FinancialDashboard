@@ -236,4 +236,15 @@ We can have our child components receive the params prop,
 
 ![alt text](image-5.png)
 
+### Error Handling
+When it comes to error handling NextJS provides two popular solutions:
+<span style="color:pink">error.tsx</span> and <span style="color:pink">not-found.tsx</span>
+#### error.tsx
+error.tsx can be used as a simple catch-all fallback.  It will not provide any specifics as to why the error is seen(because it is meant to be generic) but it will provide the user with a more graceful error handling event.
+![alt text](image-8.png)
+#### notFound from <span style="color:pink">next/navigation</span>
+For more specifics notFound() will take precendence over error.tsx where we can make a specific not-found.tsx component to handle the specific error.
+![alt text](image-9.png)
+
+
 
