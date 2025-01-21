@@ -158,7 +158,14 @@ _( ) does not affect the URL path so in this instance the url is still /dashboar
 ### Component Grouping
 Sometimes certain components may make a popping pattern when data fetching is done and it is time to render which can offput the user. (ex: card components in an eccomerce store displaing multiple products in the same format).
 
-__To avoid this__ we can group components by surrounding them in a wrapper component, and have the wrapper component be surrounded by a __Suspense__ component, where the user will see a skeleton until the wrapper containing all components is ready to render.
+__To avoid this__ we can group components by surrounding them in a wrapper component, and have the wrapper component be surrounded by a __Suspense__ component, where the user will see a skeleton until the wrapper containing all components is ready to render. _As so:_
+![alt text](image-6.png)
+
+#### Parallel Data fetching using Promise.all([])
+If we wish to have a specific group of requests to be executed at the same time in parallel we can use Javascripts method Promise.all().
+
+Promise.all works by receiving an iteratable group of requests, when all requests are done it finally returns a single Promise. It returns an array of the returned values.
+![alt text](image-7.png)
 
 ### Deciding when to use \<Suspense/> boundaries can improve user experience
 Where you place your Suspense boundaries will depend on a few things:
@@ -215,3 +222,18 @@ Server actions are asynchornous functions that handle server-side operations suc
 When you invoke a <span style="color:pink">server action</span> inside a server component you facilitate <span style="color:pink">progressive enhancement</span> which allows forms to function even if a users internet is slow or javascript is disabled on thier browser.  This ensures that users with slow internet can still interact with the application.
 
 "Additionally, Next.js integrates Server Actions with its caching mechanisms. When a form is submitted through a Server Action, you can mutate data on the server and revalidate the associated cache using APIs like revalidatePath and revalidateTag. This ensures that any stale data is updated, providing users with the most current information <span style="color:pink">without requiring a full page reload.</span>"  This ensures any changes made through form submission are seen in the UI.
+### Dynamic Route Segments
+Dynamic route segments allow you to render the same component with dynamic url paths and with that be able to fetch specific data depending on the url params.
+
+        www.mydash.com/dashboard/invoices/[id]/edit
+where a unique [id] can be passed to make the application render a specific ui pertaining to the data available to that id.
+![alt text](image-4.png)
+
+#### How do we retrieve these specific URL params:
+We can have our child components receive the params prop,
+
+<span style="color:pink">params: </span> A promise that resolves to an object containing the dynamic route parameters from the root segment down to that page.
+
+![alt text](image-5.png)
+
+

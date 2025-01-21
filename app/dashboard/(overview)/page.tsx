@@ -36,9 +36,14 @@ export default async function Page() {
         </Suspense>
         {/* <RevenueChart revenue={revenue}  /> */}
         {/* <LatestInvoices latestInvoices={latestInvoices} /> */}
+
         <Suspense fallback={<LatestInvoicesSkeleton/>}>
+        {/* where LatestInvoices is a culmination of many data requests to render
+        an invoice card for every invoice
+         */}
           <LatestInvoices/>
         </Suspense>
+
       </div>
     </main>
   );
