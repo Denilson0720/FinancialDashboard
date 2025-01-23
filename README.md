@@ -59,10 +59,11 @@ Both are great at doing CRUD operations to a database however __ORMs__ write __S
 ### REQUEST WATERFALLS
 request waterfalls refers to a sequence of network requence where each sequential request depends on the previous.
 this is something like this:
-
-    const user = await fetchUserData();
-    const bankAccountInfo = await fetchBankAccountInfo();
-    const debt = await fetchDebt();
+```ts
+const user = await fetchUserData();
+const bankAccountInfo = await fetchBankAccountInfo();
+const debt = await fetchDebt();
+```
 _user data --> get bank account details for 'user' --> get debt data from 'bank acount info'_
 
 Where each of the request depend on the data returned by the previous request.
@@ -70,27 +71,32 @@ Where each of the request depend on the data returned by the previous request.
 ### PARALLEL DATA FETCHING
 In some cases we dont want to use patterns thatll produce request waterfalls as this can be less efficient especially if no data relies on another request.
 An alternative would be parallel data fetching, in JavaScript this is dnoe through the _Promise.all()_ or _Promise.allSettled()_ functions which can call all prmises at the same time(in parallel).
-
-        const data = await Promise.all([
-                invoiceCountPromise,
-                customerCountPromise,
-                invoiceStatusPromise,
-        ]);
+```ts
+const data = await Promise.all([
+        invoiceCountPromise,
+        customerCountPromise,
+        invoiceStatusPromise,
+]);
+```
 
 # NOTE: ISSUES WITH SUPABASE
 Supabase does not yet seem to support the sql shorthand as:
+```ts
+import {sql} from '@vercel/postgres';
 
-        import {sql} from '@vercel/postgres';
-        const data = await sql<Revenue>`SELECT * FROM revenue`;
+const data = await sql<Revenue>`SELECT * FROM revenue`;
+```
 In order to by pass this we can either 
 - switch and revert to another database solution offered in vercel (neon)
 - make a db connection first and then proceed to query
 
 In order to make a db connection first we do:
+```ts
+import { db } from '@vercel/postgres';
 
-        import { db } from '@vercel/postgres';
-        const client = await db.connect(); 
-        const data = await client.sql<Revenue>`SELECT * FROM revenue`;
+const client = await db.connect(); 
+const data = await client.sql<Revenue>`SELECT * FROM revenue`;
+```
 💡Solution thanks to lovely guy on <a href='https://screen.studio/share/dg7ZYizd'>reddit</a>.
 
 ### STATIC RENDERING
@@ -201,19 +207,21 @@ If we have a Search box which updates some components based off the query inputt
 To solve this Debouncing applies limits on how oftern the search function executes queries to the database.
 
 #### Using <span style="color:pink">use-debounce</span> package
-        import { useDebouncedCallback } from 'use-debounce';
+```ts
+import { useDebouncedCallback } from 'use-debounce';
  
-        const handleSearch = useDebouncedCallback((term) => {
+const handleSearch = useDebouncedCallback((term) => {
         console.log(`Searching... ${term}`);
         
         const params = new URLSearchParams(searchParams);
         if (term) {
-        params.set('query', term);
-        } else {
-        params.delete('query');
+                params.set('query', term);
+        }else {
+                params.delete('query');
         }
         replace(`${pathname}?${params.toString()}`);
-        }, 300);
+}, 300);
+```
 Where the handleSearch is executed 300ms after the user has stopped typing.
 
 ### NextJS Server Actions
@@ -246,5 +254,86 @@ error.tsx can be used as a simple catch-all fallback.  It will not provide any s
 For more specifics notFound() will take precendence over error.tsx where we can make a specific not-found.tsx component to handle the specific error.
 ![alt text](image-9.png)
 
+### Form Validation
+When it comes to Database data mutation it is important to make sure that all data that is going to be inserted or updated within the database is existent and of the correct format.
 
+<span style="color:pink">Client vs Server Validation</span>
+#### Client Side Validation
+Client side validation is the simplest way to add a small defensive line , through the use of the <span style="color:pink">required</span> attribute we can prevent the user from submitting a form with empty values where they are required.
+However users with malitious intent can easily bypass this as this form of validation is mainly to enhance the UI and provide instant user feedback.
+#### Server Side Validation
+By validating form data on the server we can:
+ - ensure our data is in the expected format before it is submitted to the database.(<span style='color:pink'>zod</span> is used in this project)
+ - reduce risk of malitious users who bypass cllient side validation.
+ - having a source of truth for valid data.
+ 
+ #### How to use _Zod_
+ Zod is a validation library which allows its users to create schemas to which they can compare form values to, to determine validity of values provided.
+```ts
+const FormSchema = z.object({
+
+        id: z.string(),
+        customerId: z.string({
+                invalid_type_error: 'Please select a customer.',}),
+        amount: z.coerce.number().gt(0, { 
+                message: 'Please enter an amount greater than $0.' }),
+        status: z.enum(['pending', 'paid'], {
+                invalid_type_error: 'Please select an invoice status.',}),
+        date: z.string(),
+});
+```
+
+where:
+- customerId: is expected to be a string, if no string is selected, it returns an error message
+- amount: is typecasted into a number, since it comes in as a string in the input, if amount is elss than 0, message is sent
+- status: using .enum is given an array of valid strings, if none are chosen it returns an error message.
+- data: expected to be a string, user cannot physically tamper with this, so we leave it as is. 
+
+#### Validity parsing
+We can use .safeParse() to parse over the formData submitted into a server action function to check validity of data inputs <span style="color:pink">before</span> trying to submit a database query.
+```js
+function updateInvoice(id:string, prevState:State, formData:FormData){
+        const validatedFields= FormSchema.safeParse({
+                customerId: formData.get('customerId'),
+                amount: formData.get('amount'),
+                status: formData.get('status'),
+        });
+        if!(validatedFields.success){
+                return {
+                        errors: validatedFields.error.flatten().fieldErrors,
+                        message: 'Missing Fields. Failed to Create Invoice.',
+                }
+        }
+        const {customerId, amount, status} = validatedFields.data;
+
+        ...proceed with database query
+...
+```
+
+
+#### Using Reacts useActionState()
+We can use the useActionState hook to provide the user with message feedback if the inputs they have submitted into the form are wrong based off the form validations on the server(done through zod).
+The useActionState is a hook that allows you to update state based on the result of a form action.
+```js
+const [state, formAction] = useActionState(function, initialState)
+```
+
+- state, can be used to keep track of any error messages(from null to 'error creating such and such...')
+- formAction, call the hook 
+- function, function to take place(createInvoice, updateInvoice, deleteInvoice)
+- initialState, the initial state before submitting form
+
+#### Combination of useActionState hook and Zod validation
+After submitting the form through the formAction we validate the submitted data via Zod, based off Zod validation results we update our _state_ (containing error and message) and can display any errors in validation as a message in the UI.
+
+```html
+<div id='amount-error' aria-live='polite' aria-atomic='true'>   
+        {state.errors?.amount &&
+        <p className='mt-1 text-sm text-red-500'>
+                {state.errors.amount}
+        </p>
+        }
+</div>
+```
+![alt text](image-11.png)
 

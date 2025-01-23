@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+// import { sql } from '@vercel/postgres';
 import { db } from "@vercel/postgres";
 // all data queries are here in this server component 'data.ts'
 // because data.ts is a server component we can directly query from the databse without an api layer
