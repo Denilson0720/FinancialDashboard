@@ -70,12 +70,12 @@ export async function createInvoice(prevState:State,formData: FormData) {
     catch(err){
         // console.log('Error creating a new invoice: ',err);
         return{
-            message:'Database Error: Failed to create invoice.'
+            message:`Database Error: Failed to create invoice. ${err}`
         }
         // no redirect here since throwing an error already redirects
     }
     //clear cache and request for new data as we have updated the database
-    //simpler terms: update UI
+    //...update UI
     revalidatePath('/dashboard/invoices');
 
     // redirect back to dashboard/invoices as we are in dashboard/invoices/create
@@ -120,7 +120,6 @@ export async function updateInvoice(id: string,prevState:State, formData: FormDa
 }
 
 export async function deleteInvoice(id: string) {
-    throw new Error('Failed to Delete Invoice.')
     try{
     await client.sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath('/dashboard/invoices');
