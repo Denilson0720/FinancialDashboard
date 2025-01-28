@@ -1,7 +1,5 @@
 import AcmeLogo from '@/app/ui/acme-logo';
 import LoginForm from '@/app/ui/login-form';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
-import { Button } from '../ui/button';
 import Link from 'next/link';
 
  
