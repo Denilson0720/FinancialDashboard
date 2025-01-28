@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+// import { sql } from '@vercel/postgres';
 import { db } from "@vercel/postgres";
 // all data queries are here in this server component 'data.ts'
 // because data.ts is a server component we can directly query from the databse without an api layer
@@ -18,9 +18,8 @@ export async function fetchRevenue() {
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // use client to use sql
     // const data = await sql<Revenue>`SELECT * FROM revenue`;
@@ -37,6 +36,8 @@ export async function fetchRevenue() {
 // querys the last 5 invoices
 export async function fetchLatestInvoices() {
   try {
+    // simulate 2 second slow down
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     const data = await client.sql<LatestInvoiceRaw>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
@@ -60,6 +61,8 @@ export async function fetchCardData() {
     // You can probably combine these into a single sql query
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
+    await new Promise((resolve)=>setTimeout(resolve,1500));
+
     const invoiceCountPromise = client.sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = client.sql`SELECT COUNT(*) FROM customers`;
     const invoiceStatusPromise = client.sql`SELECT
@@ -90,7 +93,7 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 5;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
@@ -138,7 +141,8 @@ export async function fetchInvoicesPages(query: string) {
       invoices.date::text ILIKE ${`%${query}%`} OR
       invoices.status ILIKE ${`%${query}%`}
   `;
-
+    // we have all results
+    // now figure out how many pages by dividing results/items-per-page
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
@@ -164,7 +168,7 @@ export async function fetchInvoiceById(id: string) {
       // Convert amount from cents to dollars
       amount: invoice.amount / 100,
     }));
-
+    console.log(invoice[0])
     return invoice[0];
   } catch (error) {
     console.error('Database Error:', error);
